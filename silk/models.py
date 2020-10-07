@@ -69,6 +69,7 @@ class Request(models.Model):
     encoded_headers = TextField(blank=True, default='')  # stores json
     meta_time = FloatField(null=True, blank=True)
     meta_num_queries = IntegerField(null=True, blank=True)
+    meta_num_api_calls = IntegerField(null=True, blank=True)
     meta_time_spent_queries = FloatField(null=True, blank=True)
     pyprofile = TextField(blank=True, default='')
     prof_file = FileField(max_length=300, blank=True, storage=silk_storage)
@@ -100,9 +101,10 @@ class Request(models.Model):
                 yield columns
 
     # defined in atomic transaction within SQLQuery save()/delete() as well
-    # as in bulk_create of SQLQueryManager
+    # as in bulk_create of RequestExternalServicesManager
     # TODO: This is probably a bad way to do this, .count() will prob do?
     num_sql_queries = IntegerField(default=0)  # TODO replace with count()
+    num_api_calls = IntegerField(default=0)
 
     @property
     def time_spent_on_sql_queries(self):
@@ -215,7 +217,7 @@ class Response(models.Model):
 
 
 # TODO rewrite docstring
-class SQLQueryManager(models.Manager):
+class RequestExternalServicesManager(models.Manager):
     @transaction.atomic
     def bulk_create(self, *args, **kwargs):
         """ensure that num_sql_queries remains consistent. Bulk create does not call
@@ -227,7 +229,7 @@ class SQLQueryManager(models.Manager):
         for obj in objs:
             obj.prepare_save()
 
-        return super(SQLQueryManager, self).bulk_create(*args, **kwargs)
+        return super(RequestExternalServicesManager, self).bulk_create(*args, **kwargs)
 
 
 class SQLQuery(models.Model):
@@ -241,7 +243,7 @@ class SQLQuery(models.Model):
         blank=True, db_index=True, on_delete=models.CASCADE,
     )
     traceback = TextField()
-    objects = SQLQueryManager()
+    objects = RequestExternalServicesManager()
 
     # TODO docstring
     @property
@@ -303,6 +305,53 @@ class SQLQuery(models.Model):
         self.request.num_sql_queries -= 1
         self.request.save()
         super(SQLQuery, self).delete(*args, **kwargs)
+
+
+class APICall(models.Model):
+    url = TextField()
+    method = CharField(max_length=10)
+    query_params = TextField(blank=True, default='')
+    status_code = IntegerField(default=200)
+    start_time = DateTimeField(null=True, blank=True, default=timezone.now)
+    end_time = DateTimeField(null=True, blank=True)
+    time_taken = FloatField(blank=True, null=True)
+    identifier = IntegerField(default=-1)
+    request = ForeignKey(
+        Request, related_name='api_calls', null=True,
+        blank=True, db_index=True, on_delete=models.CASCADE,
+    )
+    traceback = TextField()
+    objects = RequestExternalServicesManager()
+
+    # TODO docstring
+    @property
+    def traceback_ln_only(self):
+        return '\n'.join(self.traceback.split('\n')[::2])
+
+    @property
+    def formatted_call(self):
+        return f'{self.method} http://{self.domain}/{self.path}'
+
+    def prepare_save(self):
+        if self.end_time and self.start_time:
+            interval = self.end_time - self.start_time
+            self.time_taken = interval.total_seconds() * 1000
+
+        if not self.pk:
+            if self.request:
+                self.request.num_api_calls += 1
+                self.request.save(update_fields=['num_api_calls'])
+
+    @transaction.atomic()
+    def save(self, *args, **kwargs):
+        self.prepare_save()
+        super(APICall, self).save(*args, **kwargs)
+
+    @transaction.atomic()
+    def delete(self, *args, **kwargs):
+        self.request.num_api_calls -= 1
+        self.request.save()
+        super(APICall, self).delete(*args, **kwargs)
 
 
 class BaseProfile(models.Model):

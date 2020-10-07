@@ -1,5 +1,7 @@
 import logging
 import random
+import requests
+
 
 from django.db import transaction, DatabaseError
 from django.urls import reverse, NoReverseMatch
@@ -13,6 +15,7 @@ from silk.model_factory import RequestModelFactory, ResponseModelFactory
 from silk.profiling import dynamic
 from silk.profiling.profiler import silk_meta_profiler
 from silk.sql import execute_sql
+from silk.request import wrapped_request
 
 Logger = logging.getLogger('silk.middleware')
 
@@ -104,6 +107,11 @@ class SilkyMiddleware:
         if not hasattr(SQLCompiler, '_execute_sql'):
             SQLCompiler._execute_sql = SQLCompiler.execute_sql
             SQLCompiler.execute_sql = execute_sql
+
+        if not hasattr(requests.Session, '_request'):
+            requests.Session._request = requests.Session.request
+            requests.Session.request = wrapped_request
+
 
         silky_config = SilkyConfig()
 

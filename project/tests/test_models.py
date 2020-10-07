@@ -286,7 +286,7 @@ class SQLQueryTest(TestCase):
 
     def test_query_manager_instance(self):
 
-        self.assertIsInstance(models.SQLQuery.objects, models.SQLQueryManager)
+        self.assertIsInstance(models.SQLQuery.objects, models.RequestExternalServicesManager)
 
     def test_traceback_ln_only(self):
 

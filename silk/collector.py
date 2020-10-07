@@ -15,6 +15,7 @@ from silk.singleton import Singleton
 TYP_SILK_QUERIES = 'silk_queries'
 TYP_PROFILES = 'profiles'
 TYP_QUERIES = 'queries'
+TYP_API_CALLS = 'api_calls'
 
 Logger = logging.getLogger('silk.collector')
 
@@ -69,6 +70,10 @@ class DataCollector(metaclass=Singleton):
         return self._get_objects(TYP_QUERIES)
 
     @property
+    def api_calls(self):
+        return self._get_objects(TYP_API_CALLS)
+
+    @property
     def silk_queries(self):
         return self._get_objects(TYP_SILK_QUERIES)
 
@@ -119,6 +124,9 @@ class DataCollector(metaclass=Singleton):
     def register_query(self, *args):
         self.register_objects(TYP_QUERIES, *args)
 
+    def register_api_call(self, *args):
+        self.register_objects(TYP_API_CALLS, *args)
+
     def register_profile(self, *args):
         self.register_objects(TYP_PROFILES, *args)
 
@@ -151,6 +159,7 @@ class DataCollector(metaclass=Singleton):
                 self.request.prof_file = f.name
                 self.request.save()
 
+        # add queries
         sql_queries = []
         for identifier, query in self.queries.items():
             query['identifier'] = identifier
@@ -163,6 +172,20 @@ class DataCollector(metaclass=Singleton):
             query = self.queries.get(sql_query.identifier)
             if query:
                 query['model'] = sql_query
+
+        # add api calls
+        api_calls = []
+        for identifier, api_call in self.api_calls.items():
+            api_call['identifier'] = identifier
+            api_call_model = models.APICall(**api_call)
+            api_calls += [api_call_model]
+
+        models.APICall.objects.bulk_create(api_calls)
+        api_calls = models.APICall.objects.filter(request=self.request)
+        for api_call_model in api_calls.all():
+            api_call = self.api_calls.get(api_call_model.identifier)
+            if api_call:
+                api_call['model'] = api_call_model
 
         for profile in self.profiles.values():
             profile_query_models = []

@@ -331,8 +331,8 @@ class APICall(models.Model):
         return '\n'.join(self.traceback.split('\n')[::2])
 
     @property
-    def formatted_call(self):
-        return f'{self.method} http://{self.domain}/{self.path}'
+    def formatted_query_params(self):
+        return json.dumps(json.loads(self.query_params), indent=2)
 
     def prepare_save(self):
         if self.end_time and self.start_time:

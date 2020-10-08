@@ -67,10 +67,15 @@ class silk_profile(object):
         self.profile = None
         self._queries_before = None
         self._queries_after = None
+        self._api_calls_before = None
+        self._api_calls_after = None
         self._dynamic = _dynamic
 
     def _query_identifiers_from_collector(self):
         return [x for x in DataCollector().queries]
+
+    def _api_call_identifiers_from_collector(self):
+        return [x for x in DataCollector().api_calls]
 
     def _start_queries(self):
         """record queries that have been executed before profiling began"""
@@ -80,10 +85,19 @@ class silk_profile(object):
         """record queries that have been executed after profiling has finished"""
         self._queries_after = self._query_identifiers_from_collector()
 
+    def _start_api_calls(self):
+        """record queries that have been executed before profiling began"""
+        self._api_calls_before = self._api_call_identifiers_from_collector()
+
+    def _end_api_calls(self):
+        """record queries that have been executed after profiling has finished"""
+        self._api_calls_after = self._api_call_identifiers_from_collector()
+
     def __enter__(self):
         if self._silk_installed() and self._should_profile():
             with silk_meta_profiler():
                 self._start_queries()
+                self._start_api_calls()
                 if not self.name:
                     raise ValueError('silk_profile used as a context manager must have a name')
                 frame = inspect.currentframe()
@@ -104,12 +118,16 @@ class silk_profile(object):
             Logger.warn('Cannot execute silk_profile as silk is not installed correctly.')
 
     def _finalise_queries(self):
-        collector = DataCollector()
         self._end_queries()
         assert self.profile, 'no profile was created'
         diff = set(self._queries_after).difference(set(self._queries_before))
         self.profile['queries'] = diff
-        collector.register_profile(self.profile)
+
+    def _finalise_api_calls(self):
+        self._end_api_calls()
+        assert self.profile, 'no profile was created'
+        diff = set(self._api_calls_after).difference(set(self._api_calls_before))
+        self.profile['api_calls'] = diff
 
     # noinspection PyUnusedLocal
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -119,6 +137,8 @@ class silk_profile(object):
                 self.profile['exception_raised'] = exception_raised
                 self.profile['end_time'] = timezone.now()
                 self._finalise_queries()
+                self._finalise_api_calls()
+                DataCollector().register_profile(self.profile)
 
     def _silk_installed(self):
         app_installed = 'silk' in settings.INSTALLED_APPS
@@ -154,6 +174,7 @@ class silk_profile(object):
                         'request': DataCollector().request
                     }
                     self._start_queries()
+                    self._start_api_calls()
                 try:
                     result = target(*args, **kwargs)
                 except Exception:
@@ -163,6 +184,8 @@ class silk_profile(object):
                     with silk_meta_profiler():
                         self.profile['end_time'] = timezone.now()
                         self._finalise_queries()
+                        self._finalise_api_calls()
+                        DataCollector().register_profile(self.profile)
                 return result
 
             return wrapped_target

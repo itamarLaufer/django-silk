@@ -22,16 +22,14 @@ def wrapped_request(self, method, url,
 
     response = None
     try:
-        return self._request(method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects,
-                             proxies, hooks, stream, verify, cert, json)
+        response = self._request(method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects,
+                                 proxies, hooks, stream, verify, cert, json)
+        return response
     finally:
         api_call_dict['end_time'] = timezone.now()
-        query_dict['end_time'] = timezone.now()
         request = DataCollector().request
         if request:
             api_call_dict['request'] = request
-            query_dict['request'] = request
+        if response is not None:
+            api_call_dict['status_code'] = response.status_code
         DataCollector().register_api_call(api_call_dict)
-        DataCollector().register_query(query_dict)
-        return self._request(method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects,
-                             proxies, hooks, stream, verify, cert, json)

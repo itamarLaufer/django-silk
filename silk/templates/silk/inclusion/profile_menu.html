@@ -49,3 +49,23 @@
         </div>
     </a>
 </div>
+
+<div class="menu-item selectable-menu-item
+            {% if silk_request %}
+                 {% navactive request 'silk:request_and_profile_api_calls' silk_request.id profile.id %}
+            {% else %}
+                {% navactive request 'silk:profile_api_calls' profile.id %}
+            {% endif %}">
+    <a href="
+        {% if silk_request %}
+            {% url "silk:request_and_profile_api_calls" silk_request.id profile.id %}
+        {% else %}
+            {% url "silk:profile_api_calls" profile.id %}
+        {% endif %}
+    ">
+        <div class="menu-item-outer
+        ">
+            <div class="menu-item-inner">API Calls</div>
+        </div>
+    </a>
+</div>

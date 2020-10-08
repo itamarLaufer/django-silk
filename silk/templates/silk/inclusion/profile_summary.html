@@ -10,8 +10,15 @@
     <div class="time-taken-queries-div">
         <span class="numeric">{{ profile.time_spent_on_sql_queries|floatformat:"0" }}<span class="unit">ms</span></span>
         <span class="appenage">on queries</span></div>
+    <div class="time-taken-api-calls-div">
+        <span class="numeric">{{ profile.time_spent_on_api_calls|floatformat:"0" }}<span class="unit">ms</span></span>
+        <span class="appenage">on api calls</div>
     <div class="num-queries-div">
         <span class="numeric">{{ profile.queries.count }}</span>
         <span class="appendage">queries</span>
+    </div>
+        <div class="num-api-calls-div">
+        <span class="numeric">{{ profile.api_calls.count }}</span>
+        <span class="appendage">api calls<span class="meta"></span>
     </div>
 </div>

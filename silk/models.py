@@ -383,6 +383,7 @@ class Profile(BaseProfile):
     func_name = CharField(max_length=300, blank=True, default='')
     exception_raised = BooleanField(default=False)
     queries = ManyToManyField(SQLQuery, related_name='profiles', db_index=True)
+    api_calls = ManyToManyField(APICall, related_name='profiles_api_calls', db_index=True)
     dynamic = BooleanField(default=False)
 
     @property
@@ -396,3 +397,7 @@ class Profile(BaseProfile):
     @property
     def time_spent_on_sql_queries(self):
         return sum(x.time_taken for x in self.queries.all())
+
+    @property
+    def time_spent_on_api_calls(self):
+        return sum(x.time_taken for x in self.api_calls.all())

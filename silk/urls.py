@@ -1,5 +1,7 @@
 from django.conf.urls import url
 
+from silk.views.api_call_detail import APICallDetailView
+from silk.views.api_calls import APICallsView
 from silk.views.clear_db import ClearDBView
 from silk.views.profile_detail import ProfilingDetailView
 from silk.views.profile_download import ProfileDownloadView
@@ -28,9 +30,19 @@ urlpatterns = [
         name='request_sql'
     ),
     url(
+        r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/api_calls/$',
+        APICallsView.as_view(),
+        name='request_api_calls'
+    ),
+    url(
         r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/sql/(?P<sql_id>[0-9]+)/$',
         SQLDetailView.as_view(),
         name='request_sql_detail'
+    ),
+    url(
+        r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/api_call/(?P<api_call_id>[0-9]+)/$',
+        APICallDetailView.as_view(),
+        name='request_api_call_detail'
     ),
     url(
         r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/raw/$',
@@ -63,10 +75,21 @@ urlpatterns = [
         name='request_and_profile_sql'
     ),
     url(
+        r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/profile/(?P<profile_id>[0-9]+)/api_calls/$',
+        APICallsView.as_view(),
+        name='request_and_profile_api_calls'
+    ),
+    url(
         r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/profile/(?P<profile_id>[0-9]+)/sql/(?P<sql_id>[0-9]+)/$',
         SQLDetailView.as_view(),
         name='request_and_profile_sql_detail'
     ),
+    url(
+        r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/profile/(?P<profile_id>[0-9]+)/api_call/(?P<api_call_id>[0-9]+)/$',
+        APICallDetailView.as_view(),
+        name='request_and_profile_api_call_detail'
+    ),
+
     url(
         r'^profile/(?P<profile_id>[0-9]+)/$',
         ProfilingDetailView.as_view(),
@@ -78,9 +101,19 @@ urlpatterns = [
         name='profile_sql'
     ),
     url(
+        r'^profile/(?P<profile_id>[0-9]+)/api_call/$',
+        APICallsView.as_view(),
+        name='profile_api_calls'
+    ),
+    url(
         r'^profile/(?P<profile_id>[0-9]+)/sql/(?P<sql_id>[0-9]+)/$',
         SQLDetailView.as_view(),
         name='profile_sql_detail'
+    ),
+    url(
+        r'^profile/(?P<profile_id>[0-9]+)/api_call/(?P<api_call_id>[0-9]+)/$',
+        APICallDetailView.as_view(),
+        name='profile_api_call_detail'
     ),
     url(r'^profiling/$', ProfilingView.as_view(), name='profiling'),
     url(r'^cleardb/$', ClearDBView.as_view(), name='cleardb'),

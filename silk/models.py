@@ -69,7 +69,6 @@ class Request(models.Model):
     encoded_headers = TextField(blank=True, default='')  # stores json
     meta_time = FloatField(null=True, blank=True)
     meta_num_queries = IntegerField(null=True, blank=True)
-    meta_num_api_calls = IntegerField(null=True, blank=True)
     meta_time_spent_queries = FloatField(null=True, blank=True)
     pyprofile = TextField(blank=True, default='')
     prof_file = FileField(max_length=300, blank=True, storage=silk_storage)

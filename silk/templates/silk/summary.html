@@ -165,6 +165,10 @@
                     <div class="desc">Avg. #Queries</div>
                 </div>
                 <div class="summary-cell">
+                    <div class="num"><span class="numeric">{{ avg_num_api_calls | floatformat:2 }}</span></div>
+                    <div class="desc">Avg. #API Calls</div>
+                </div>
+                <div class="summary-cell">
                     <div class="num"><span class="numeric">{{ avg_time_spent_on_queries |floatformat:0 }}<span class="unit">ms</span></span></div>
                     <div class="desc">Avg. DB Time</div>
                 </div>

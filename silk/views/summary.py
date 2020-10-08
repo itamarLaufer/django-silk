@@ -16,6 +16,10 @@ class SummaryView(View):
         queries__aggregate = models.Request.objects.filter(*filters).annotate(num_queries=Count('queries')).aggregate(num=Avg('num_queries'))
         return queries__aggregate['num']
 
+    def _avg_num_api_calls(self, filters):
+        queries__aggregate = models.Request.objects.filter(*filters).annotate(num_of_api_calls=Count('api_calls')).aggregate(num=Avg('num_of_api_calls'))
+        return queries__aggregate['num']
+
     def _avg_time_spent_on_queries(self, filters):
         taken__aggregate = models.Request.objects.filter(*filters).annotate(time_spent=Sum('queries__time_taken')).aggregate(num=Avg('time_spent'))
         return taken__aggregate['num']
@@ -56,12 +60,12 @@ class SummaryView(View):
     def _create_context(self, request):
         raw_filters = request.session.get(self.filters_key, {})
         filters = [BaseFilter.from_dict(filter_d) for _, filter_d in raw_filters.items()]
-        avg_overall_time = self._avg_num_queries(filters)
         c = {
             'request': request,
             'num_requests': models.Request.objects.filter(*filters).count(),
             'num_profiles': models.Profile.objects.filter(*filters).count(),
-            'avg_num_queries': avg_overall_time,
+            'avg_num_queries': self._avg_num_queries(filters),
+            'avg_num_api_calls': self._avg_num_api_calls(filters),
             'avg_time_spent_on_queries': self._avg_time_spent_on_queries(filters),
             'avg_overall_time': self._avg_overall_time(filters),
             'longest_queries_by_view': self._longest_query_by_view(filters),

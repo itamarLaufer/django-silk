@@ -118,6 +118,9 @@ class Request(models.Model):
         """
         return sum(x.time_taken for x in SQLQuery.objects.filter(request=self))
 
+    def time_spent_on_api_calls(self):
+        return sum(x.time_taken for x in APICall.objects.filter(request=self))
+
     @property
     def headers(self):
         if self.encoded_headers:

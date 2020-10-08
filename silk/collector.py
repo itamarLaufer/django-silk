@@ -189,6 +189,7 @@ class DataCollector(metaclass=Singleton):
 
         for profile in self.profiles.values():
             profile_query_models = []
+            profile_api_call_models = []
             if TYP_QUERIES in profile:
                 profile_queries = profile[TYP_QUERIES]
                 del profile[TYP_QUERIES]
@@ -208,9 +209,33 @@ class DataCollector(metaclass=Singleton):
                             'Profile references a query temp_id that does not exist. '
                             'This should never happen, please file a bug report'
                         )
+            if TYP_API_CALLS in profile:
+                profile_api_calls = profile[TYP_API_CALLS]
+                del profile[TYP_API_CALLS]
+                for api_call_temp_id in profile_api_calls:
+                    try:
+                        api_call = self.api_calls[api_call_temp_id]
+                        try:
+                            profile_api_call_models.append(api_call['model'])
+                        except KeyError:
+                            raise SilkInternalInconsistency(
+                                'Profile references a query dictionary that has not '
+                                'been converted into a Django model. This should '
+                                'never happen, please file a bug report'
+                            )
+                    except KeyError:
+                        raise SilkInternalInconsistency(
+                            'Profile references a query temp_id that does not exist. '
+                            'This should never happen, please file a bug report'
+                        )
+
+
+
             profile = models.Profile.objects.create(**profile)
             if profile_query_models:
                 profile.queries.set(profile_query_models)
+            if profile_api_call_models:
+                profile.api_calls.set(profile_api_call_models)
         self._record_meta_profiling()
 
     def register_silk_query(self, *args):

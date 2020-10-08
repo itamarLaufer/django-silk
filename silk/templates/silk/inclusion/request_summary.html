@@ -10,8 +10,15 @@
     <div class="time-taken-queries-div">
         <span class="numeric">{{ silk_request.time_spent_on_sql_queries|floatformat:"0" }}<span class="unit">ms</span></span>
         <span class="appenage">on queries<span class="meta">{% if silk_request.meta_time_spent_queries %} +{{ silk_request.meta_time_spent_queries | floatformat:"0" }}<span class="unit">ms</span>{% endif %}</span></div>
+    <div class="time-taken-api-calls-div">
+        <span class="numeric">{{ silk_request.time_spent_on_api_calls|floatformat:"0" }}<span class="unit">ms</span></span>
+        <span class="appenage">on api calls<span class="meta"><span class="unit">ms</span></span></div>
     <div class="num-queries-div">
         <span class="numeric">{{ silk_request.num_sql_queries }}</span>
         <span class="appendage">queries<span class="meta">{% if silk_request.meta_num_queries %} +{{ silk_request.meta_num_queries  }}{% endif %}</span>
+    </div>
+    <div class="num-api-calls-div">
+        <span class="numeric">{{ silk_request.num_api_calls }}</span>
+        <span class="appendage">api calls<span class="meta"></span>
     </div>
 </div>

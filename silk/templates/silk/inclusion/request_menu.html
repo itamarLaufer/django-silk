@@ -23,6 +23,14 @@
         </div>
     </div>
 </a>
+</a>
+<a href="{% url "silk:request_api_calls" silk_request.id %}">
+    <div class="menu-item {% navactive request 'silk:request_api_calls' silk_request.id %} selectable-menu-item">
+        <div class="menu-item-outer">
+            <div class="menu-item-inner">API Calls</div>
+        </div>
+    </div>
+</a>
 <a href="{% url "silk:request_profiling" silk_request.id %}">
     <div class="menu-item {% navactive request 'silk:request_profiling' silk_request.id %} selectable-menu-item">
         <div class="menu-item-outer">

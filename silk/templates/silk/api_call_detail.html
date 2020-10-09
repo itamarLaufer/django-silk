@@ -92,7 +92,7 @@
             <div class="cell">
                 <div class="method-div">{% if api_call.status_code %}{{ api_call.status_code }} {% endif %}{{ api_call.method }}</div>
                 <div class="path-div">{{ api_call.url }}</div>
-                            <pre id="query"><code>{{ api_call.formatted_query_params|spacify|linebreaksbr }}</code></pre>
+                            <pre id="query"><code>{{ api_call.formatted_json_data|spacify|linebreaksbr }}</code></pre>
 
                     <div id="time-taken-div">
                         <sparn class="numeric">{{ api_call.time_taken }}<span class="unit">ms</span></sparn>

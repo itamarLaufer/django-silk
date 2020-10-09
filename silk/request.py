@@ -12,7 +12,7 @@ def wrapped_request(self, method, url,
                     hooks=None, stream=None, verify=None, cert=None, json=None):
     tb = ''.join(reversed(traceback.format_stack()))
     api_call_dict = {'method': method.upper(), 'url': url, 'traceback': tb, 'start_time': timezone.now(),
-                     'query_params': None if json is None else json_module.dumps(json)}
+                     'json_data': None if json is None else json_module.dumps(json)}
 
     response = None
     try:

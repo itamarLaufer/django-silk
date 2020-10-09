@@ -312,7 +312,7 @@ class SQLQuery(models.Model):
 class APICall(models.Model):
     url = TextField()
     method = CharField(max_length=10)
-    query_params = TextField(blank=True, default='')
+    query_params = TextField(null=True, default=None)
     status_code = IntegerField(default=200)
     start_time = DateTimeField(null=True, blank=True, default=timezone.now)
     end_time = DateTimeField(null=True, blank=True)
@@ -332,7 +332,7 @@ class APICall(models.Model):
 
     @property
     def formatted_query_params(self):
-        return json.dumps(json.loads(self.query_params), indent=2)
+        return '' if not self.query_params else json.dumps(json.loads(self.query_params), indent=2)
 
     @property
     def netloc(self):

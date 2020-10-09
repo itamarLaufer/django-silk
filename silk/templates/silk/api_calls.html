@@ -105,7 +105,9 @@
             <table class="sortable">
                 <tr>
                     <th class="left-aligned">At</th>
-                    <th class="left-aligned">URL</th>
+                    <th class="left-aligned">Scheme</th>
+                    <th class="left-aligned">Network Location</th>
+                    <th class="left-aligned">Path</th>
                     <th class="right-aligned">Execution Time (ms)</th>
                 </tr>
                 {% for api_call in items %}
@@ -120,7 +122,9 @@
                        {% endif %}\
                         ';">
                         <td class="left-aligned">+{{ api_call.start_time_relative }}</td>
-                        <td class="left-aligned">{{ api_call.url }}</td>
+                        <td class="left-aligned">{{ api_call.scheme }}</td>
+                        <td class="left-aligned">{{ api_call.netloc }}</td>
+                        <td class="left-aligned">{{ api_call.path }}</td>
 \                        <td class="right-aligned">{{ api_call.time_taken | floatformat:6 }}</td>
                     </tr>
                 {% endfor %}

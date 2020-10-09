@@ -1,4 +1,4 @@
-from collections import Counter
+from urllib.parse import urlparse
 import json
 import base64
 import random
@@ -333,6 +333,18 @@ class APICall(models.Model):
     @property
     def formatted_query_params(self):
         return json.dumps(json.loads(self.query_params), indent=2)
+
+    @property
+    def netloc(self):
+        return urlparse(self.url).netloc
+
+    @property
+    def path(self):
+        return urlparse(self.url).path + urlparse(self.url).query
+
+    @property
+    def scheme(self):
+        return urlparse(self.url).scheme
 
     def prepare_save(self):
         if self.end_time and self.start_time:

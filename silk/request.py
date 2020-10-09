@@ -11,14 +11,8 @@ def wrapped_request(self, method, url,
                     auth=None, timeout=None, allow_redirects=True, proxies=None,
                     hooks=None, stream=None, verify=None, cert=None, json=None):
     tb = ''.join(reversed(traceback.format_stack()))
-    api_call_dict = {'method': method.upper(), 'url': url, 'traceback': tb, 'start_time': timezone.now()}
-
-    query_params = {}
-    if json:
-        query_params['json'] = json
-    if params:
-        query_params['params'] = params
-    api_call_dict['query_params'] = json_module.dumps(query_params)
+    api_call_dict = {'method': method.upper(), 'url': url, 'traceback': tb, 'start_time': timezone.now(),
+                     'query_params': json_module.dumps(json or {})}
 
     response = None
     try:

@@ -172,6 +172,10 @@
                     <div class="num"><span class="numeric">{{ avg_time_spent_on_queries |floatformat:0 }}<span class="unit">ms</span></span></div>
                     <div class="desc">Avg. DB Time</div>
                 </div>
+                <div class="summary-cell">
+                    <div class="num"><span class="numeric">{{ avg_time_spent_on_api_calls |floatformat:0 }}<span class="unit">ms</span></span></div>
+                    <div class="desc">Avg. API Time</div>
+                </div>
             {% else %}
                 <p class="no-data">No data</p>
             {% endif %}
@@ -195,9 +199,29 @@
             {% else %}
                 <p class="no-data">No data</p>
             {% endif %}
+            <h2>Most Time Spent in API Calls</h2>
+            {% if most_time_spent_in_api_calls %}
+                {% for x in most_time_spent_in_api_calls %}
+                    <a href="{% url "silk:request_detail" request_id=x.pk %}">
+                        {% request_summary x %}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">No data</p>
+            {% endif %}
             <h2>Most Database Queries</h2>
             {% if most_queries %}
                 {% for x in most_queries %}
+                    <a href="{% url "silk:request_detail" request_id=x.pk %}">
+                        {% request_summary x %}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">No data</p>
+            {% endif %}
+            <h2>Most API Calls</h2>
+            {% if most_api_calls %}
+                {% for x in most_api_calls %}
                     <a href="{% url "silk:request_detail" request_id=x.pk %}">
                         {% request_summary x %}
                     </a>

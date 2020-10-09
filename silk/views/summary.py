@@ -24,6 +24,10 @@ class SummaryView(View):
         taken__aggregate = models.Request.objects.filter(*filters).annotate(time_spent=Sum('queries__time_taken')).aggregate(num=Avg('time_spent'))
         return taken__aggregate['num']
 
+    def _avg_time_spent_on_api_calls(self, filters):
+        taken__aggregate = models.Request.objects.filter(*filters).annotate(time_spent=Sum('api_calls__time_taken')).aggregate(num=Avg('time_spent'))
+        return taken__aggregate['num']
+
     def _avg_overall_time(self, filters):
         taken__aggregate = models.Request.objects.filter(*filters).annotate(time_spent=Sum('time_taken')).aggregate(num=Avg('time_spent'))
         return taken__aggregate['num']
@@ -45,6 +49,14 @@ class SummaryView(View):
             requests.append(r)
         return requests
 
+    def _time_spent_in_api_calls_by_view(self, filters):
+        values_list = models.Request.objects.filter(*filters).values_list('view_name').annotate(t=Sum('api_calls__time_taken')).filter(t__gte=0).order_by('-t')[:5]
+        requests = []
+        for view, _ in values_list:
+            r = models.Request.objects.filter(view_name=view, *filters).annotate(t=Sum('api_calls__time_taken')).order_by('-t')[0]
+            requests.append(r)
+        return requests
+
     def _num_queries_by_view(self, filters):
         queryset = models.Request.objects.filter(*filters).values_list('view_name').annotate(t=Count('queries')).order_by('-t')[:5]
         views = [r[0] for r in queryset[:6]]
@@ -52,6 +64,18 @@ class SummaryView(View):
         for view in views:
             try:
                 r = models.Request.objects.filter(view_name=view, *filters).annotate(t=Count('queries')).order_by('-t')[0]
+                requests.append(r)
+            except IndexError:
+                pass
+        return requests
+
+    def _num_api_calls_by_view(self, filters):
+        queryset = models.Request.objects.filter(*filters).values_list('view_name').annotate(t=Count('api_calls')).order_by('-t')[:5]
+        views = [r[0] for r in queryset[:6]]
+        requests = []
+        for view in views:
+            try:
+                r = models.Request.objects.filter(view_name=view, *filters).annotate(t=Count('api_calls')).order_by('-t')[0]
                 requests.append(r)
             except IndexError:
                 pass
@@ -67,10 +91,13 @@ class SummaryView(View):
             'avg_num_queries': self._avg_num_queries(filters),
             'avg_num_api_calls': self._avg_num_api_calls(filters),
             'avg_time_spent_on_queries': self._avg_time_spent_on_queries(filters),
+            'avg_time_spent_on_api_calls': self._avg_time_spent_on_api_calls(filters),
             'avg_overall_time': self._avg_overall_time(filters),
             'longest_queries_by_view': self._longest_query_by_view(filters),
             'most_time_spent_in_db': self._time_spent_in_db_by_view(filters),
+            'most_time_spent_in_api_calls': self._time_spent_in_api_calls_by_view(filters),
             'most_queries': self._num_queries_by_view(filters),
+            'most_api_calls': self._num_api_calls_by_view(filters),
             'filters': raw_filters
         }
         c.update(csrf(request))

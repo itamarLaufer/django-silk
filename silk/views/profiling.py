@@ -16,8 +16,10 @@ class ProfilingView(View):
                 'Name',
                 'Function Name',
                 'Num. Queries',
+                'Num. API Calls',
                 'Time',
-                'Time on queries']
+                'Time on queries',
+                'Time on API Calls']
     defualt_order_by = 'Recent'
     session_key_profile_filters = 'session_key_profile_filters'
 
@@ -63,10 +65,14 @@ class ProfilingView(View):
             query_set = query_set.order_by('-func_name')
         elif order_by == 'Num. Queries':
             query_set = query_set.annotate(num_queries=Count('queries')).order_by('-num_queries')
+        elif order_by == 'Num. API Calls':
+            query_set = query_set.annotate(num_api_calls=Count('api_calls')).order_by('-num_api_calls')
         elif order_by == 'Time':
             query_set = query_set.order_by('-time_taken')
         elif order_by == 'Time on queries':
             query_set = query_set.annotate(db_time=Sum('queries__time_taken')).order_by('-db_time')
+        elif order_by == 'Time on API Calls':
+            query_set = query_set.annotate(api_calls_time=Sum('api_calls__time_taken')).order_by('-api_calls_time')
         elif order_by:
             raise RuntimeError('Unknown order_by: "%s"' % order_by)
         if func_name:

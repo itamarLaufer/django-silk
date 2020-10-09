@@ -28,6 +28,10 @@ class RequestsView(View):
             'label': 'Num. Queries',
             'additional_query_filter': None
         },
+        'num_api_calls': {
+            'label': 'Num. API Calls',
+            'additional_query_filter': None
+        },
         'time_taken': {
             'label': 'Time',
             'additional_query_filter': lambda x: x.filter(time_taken__gte=0)
@@ -37,6 +41,11 @@ class RequestsView(View):
             'additional_query_filter': lambda x: x.annotate(db_time=Sum('queries__time_taken'))
             .filter(db_time__gte=0)
         },
+        'api_calls_time': {
+            'label': 'Time spent of API',
+            'additional_query_filter': lambda x: x.annotate(api_calls_time=Sum("api_calls__time_taken"))
+            .filter(api_calls_time__gte=0)
+        }
     }
     order_dir = {
         'ASC': {

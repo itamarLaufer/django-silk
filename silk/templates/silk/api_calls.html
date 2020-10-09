@@ -105,6 +105,7 @@
             <table class="sortable">
                 <tr>
                     <th class="left-aligned">At</th>
+                    <th class="left-aligned">Method</th>
                     <th class="left-aligned">Scheme</th>
                     <th class="left-aligned">Network Location</th>
                     <th class="left-aligned">Path</th>
@@ -112,7 +113,7 @@
                 </tr>
                 {% for api_call in items %}
                     <!-- TODO: Pretty grimy... -->
-                    <tr class="data-row" onclick="window.location=' \
+                    <tr class="data-row" onclick="window.location='
                        {% if profile and silk_request %}\
                            {% url "silk:request_and_profile_api_call_detail" silk_request.id profile.id api_call.id %}\
                        {% elif profile %}\
@@ -122,10 +123,11 @@
                        {% endif %}\
                         ';">
                         <td class="left-aligned">+{{ api_call.start_time_relative }}</td>
+                        <td class="left-aligned">{{ api_call.method }}</td>
                         <td class="left-aligned">{{ api_call.scheme }}</td>
                         <td class="left-aligned">{{ api_call.netloc }}</td>
                         <td class="left-aligned">{{ api_call.path }}</td>
-\                        <td class="right-aligned">{{ api_call.time_taken | floatformat:6 }}</td>
+                       <td class="right-aligned">{{ api_call.time_taken | floatformat:6 }}</td>
                     </tr>
                 {% endfor %}
 
